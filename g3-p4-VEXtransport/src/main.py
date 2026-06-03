@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------- 
 #                                                                              
 # 	Module:       main.py                                                      
-# 	Author:       Mallory Brennan, Dan Lutz, Amy                                   
+# 	Author:       Mallory Brennan, Dan Lutz, Amy Wang                                   
 # 	Created:      6/1/2026, 1:20:25 PM                                         
 # 	Description:  V5 project                                                   
 #                                                                              
@@ -110,16 +110,13 @@ def driveStraight(distance, setpoint, motorVelocity):
     
     inertial_1.reset_rotation() # Reset the rotation before each driving 
     
-    # Set stopping mode for the motors
-    leftMotor.set_stopping(COAST)
-    rightMotor.set_stopping(COAST)
-
     kP = 0.323       # Proportional constant for driving straight
                     # used to calculate the correctionto maintain course
                     # If too small, correction will occur too slowly
                     # If too large, overcorrection will occur
                     # Determine best value by iteratively testing
-                    
+
+              
     wheelDiameter = 4 # Wheel diameter = 4 inches
     
     # Calculate the distance in terms of encoder ticks (1 tick = 1 degreee)
@@ -134,6 +131,10 @@ def driveStraight(distance, setpoint, motorVelocity):
     
     # Drive forward if motor velocity > 0
     if(motorVelocity > 0):
+        leftMotor.set_stopping(BRAKE)
+        rightMotor.set_stopping(BRAKE)
+    
+
         # While loop to track the distance traveled
         while(leftMotor.position(DEGREES) < distance):
             error = (setpoint - inertial_1.rotation()) # Caculate error
@@ -157,6 +158,9 @@ def driveStraight(distance, setpoint, motorVelocity):
     # Drive straight in reverse if motor velocity < 0
     else:
         
+        leftMotor.set_stopping(COAST)
+        rightMotor.set_stopping(COAST)
+
         distance *= -1 # distance = distance * -1
         # While loop to track the distance traveled
         while(leftMotor.position(DEGREES) > distance):
@@ -178,6 +182,8 @@ def driveStraight(distance, setpoint, motorVelocity):
     
         # Stop the motors when the desired distance is reached
         stopMotors()
+
+    
 
 def turnData(turnError, derivative):
     brain.screen.set_cursor(1, 1)
@@ -294,13 +300,18 @@ def main():
     #pointTurn(135)
     #wait(2, SECONDS)
 
-    driveStraight(94, 0, 50)
-    liftArm(20, 40)
-    driveStraight(35, 0, -30)
-    pointTurn(90)
-    driveStraight(2, 0, 30)
-    liftArm(20, -30)
+   # driveStraight(94, 0, 50)
+   # liftArm(20, 40)
+    #driveStraight(35, 0, -30)
+    #pointTurn(90)
+    #driveStraight(2, 0, 30)
+    #liftArm(20, -30)
 
+    driveStraight(95,0,80)
+    liftArm(20,40)
+    driveStraight(7,0, -50)
+    pointTurn(90)
+    driveStraight(40,0,80)
 
 # -------------------------------------------- Call main Function --------------------------------------------
 main()
