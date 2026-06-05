@@ -158,7 +158,7 @@ def driveStraight(distance, setpoint, motorVelocity):
     # Drive straight in reverse if motor velocity < 0
     else:
         
-        leftMotor.set_stopping(COAST)
+        leftMotor.set_stopping(COAST)               # Set brake setting to coast when going backwards to prevent ball from falling
         rightMotor.set_stopping(COAST)
 
         distance *= -1 # distance = distance * -1
@@ -183,7 +183,60 @@ def driveStraight(distance, setpoint, motorVelocity):
         # Stop the motors when the desired distance is reached
         stopMotors()
 
+def driveStraightWithBall(distance, setpoint, motorVelocity):           # Switch to coast when robot is holding ball to prevent ball from falling off
+    """
+    1. distance = distance to travel in inches
+    2. setpoint = 0-degrees of rotation for driving straight
+    3. motorVelocity = the velocity of the motors (+) => forward, (-) => reverse
+    """
     
+    inertial_1.reset_rotation() # Reset the rotation before each driving 
+    
+    kP = 0.323       # Proportional constant for driving straight
+                    # used to calculate the correctionto maintain course
+                    # If too small, correction will occur too slowly
+                    # If too large, overcorrection will occur
+                    # Determine best value by iteratively testing
+
+              
+    wheelDiameter = 4 # Wheel diameter = 4 inches
+    
+    # Calculate the distance in terms of encoder ticks (1 tick = 1 degreee)
+    #distance (ticks) = Distance in inches / Wheel circumference * 360 (degrees in one rotation)
+     
+    wheelCircumference = wheelDiameter * math.pi # Wheel circumeference
+    distance = (distance / wheelCircumference) * 360 # Distance in ticks
+     
+     # Reset the motor encoder to zero before driving
+    leftMotor.set_position(0, DEGREES)
+    rightMotor.set_position(0, DEGREES)
+    
+    # Drive forward if motor velocity > 0
+    if(motorVelocity > 0):
+        leftMotor.set_stopping(COAST)
+        rightMotor.set_stopping(COAST)
+    
+
+        # While loop to track the distance traveled
+        while(leftMotor.position(DEGREES) < distance):
+            error = (setpoint - inertial_1.rotation()) # Caculate error
+            correction = kP * error                    # Motor velocity correction
+
+            # Correct motor velocites
+            # if error > 0 (setpoint > rotation) => drifting left
+            # if error < 0 (setpoint < rotation) => drifting right
+            
+            leftMotor.set_velocity(motorVelocity + correction, PERCENT) 
+            rightMotor.set_velocity(motorVelocity - correction, PERCENT)
+            
+            # Spin motors
+            drivetrain.drive(FORWARD)
+            
+            driveStraightData(error) # Display position, rotation, and error
+    
+        # Stop the motors when the desired distance is reached
+        stopMotors()
+        
 
 def turnData(turnError, derivative):
     brain.screen.set_cursor(1, 1)
@@ -311,8 +364,9 @@ def main():
     liftArm(20,40)
     driveStraight(7,0, -50)
     pointTurn(90)
-    driveStraight(65,0,80)
+    driveStraightWithBall(65,0,80)
     pointTurn(50)
+    driveStraightWithBall(4,0,80)
 
 # -------------------------------------------- Call main Function --------------------------------------------
 main()
