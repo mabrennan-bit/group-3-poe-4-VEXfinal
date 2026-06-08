@@ -306,13 +306,17 @@ def main():
     #liftArm(20, -30)
 
     driveStraight(95,0,80)
-    liftArm(40,40)
-    driveStraight(4,0, -50)
+    liftArm(20,50)
+    driveStraight(3.5,0, -40)
     pointTurn(90)
-    driveStraight(70,0,80)
-    pointTurn(65)
-    #driveStraight(4,0,80)
-    #liftArm(30, -30)
+    driveStraight(70,0,75)
+    pointTurn(50)
+    driveStraight(9,0,50)
+    liftArm(30, -60)
+    liftArm(50, 100)
+    pointTurn(145)
+    driveStraight(14,0,-80)
+
 
 
 # -------------------------------------------- Call main Function --------------------------------------------
